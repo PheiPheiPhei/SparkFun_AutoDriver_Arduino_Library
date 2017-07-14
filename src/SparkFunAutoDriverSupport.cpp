@@ -311,18 +311,20 @@ long AutoDriver::xferParam(unsigned long value, byte bitLen)
 
 byte AutoDriver::SPIXfer(byte data)
 {
-  byte dataPacket[_numBoards];
+  byte dataPacketIn[_numBoards];
+  byte dataPacketOut[_numBoards];
   int i;
   for (i=0; i < _numBoards; i++)
   {
-    dataPacket[i] = 0;
+    dataPacketIn[i] = 0;
+    dataPacketOut[i] = 0;
   }
-  dataPacket[_position] = data;
+  dataPacketOut[_position] = data;
   digitalWrite(_CSPin, LOW);
-  _SPI->beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE3));
-  _SPI->transfer(dataPacket, _numBoards);
+  _SPI->beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE2));
+  _SPI->transferBytes(dataPacketOut, dataPacketIn, _numBoards);
   _SPI->endTransaction();
   digitalWrite(_CSPin, HIGH);
-  return dataPacket[_position];
+ delayMicroseconds(1);
+  return dataPacketIn[_position];
 }
-
